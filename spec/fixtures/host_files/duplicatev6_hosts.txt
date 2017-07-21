@@ -1,0 +1,5 @@
+# This is a file with a duplicate entry for an IPv6 host
+127.0.0.1 localhost
+
+fe80::12 homeserver
+fe80::1:13 homeserver

@@ -1,0 +1,5 @@
+127.0.0.1 localhost mysql redis
+
+192.168.0.1 homeserver
+192.168.2.1 mysql
+192.168.1.1 cacheserver.test.de cacheserver redis
