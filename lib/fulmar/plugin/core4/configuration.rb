@@ -12,7 +12,7 @@ module Fulmar
         end
 
         def test_files
-          ["#{File.dirname(__FILE__)}/config_tests"]
+          Dir.glob("#{File.dirname(__FILE__)}/config_tests/*.rb")
         end
 
         def rake_files
