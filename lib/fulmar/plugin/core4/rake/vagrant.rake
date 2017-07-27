@@ -49,3 +49,30 @@ namespace :initialize do
     remote_shell.strict = true
   end
 end
+
+unless config.plugins[:core4][:sync].nil?
+  namespace :setup do
+    namespace :vagrant do
+      desc 'Update vagrant database and assets from internal cache server'
+      task :download do
+        plugin_config = config.plugins[:core4][:sync]
+        config.set *config.plugins[:core4][:sync][:to].split(':').map(&:to_sym)
+
+        info 'Loading database...'
+        remote_shell.run "curl -s #{plugin_config[:database_url]} > /tmp/database.sql.gz"
+        mariadb.load_dump('/tmp/database.sql.gz')
+
+        info 'Loading assets...'
+        urls = [*plugin_config[:assets_url]]
+        paths = [*plugin_config[:assets_path]]
+        fail 'The number of assets urls must match the number of assets paths' unless urls.size == paths.size
+        urls.each_index do |i|
+          remote_shell.run [
+            "mkdir -p #{paths[i]}",
+            "curl -s #{urls[i]} | tar -xzf - -C #{paths[i]}"
+          ]
+        end
+      end
+    end
+  end
+end

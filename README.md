@@ -1,8 +1,7 @@
 # Fulmar::Plugin::CORE4
 
-
-## Prerequisites
-
+This plugin combines several helping tasks and services for CORE4 GmbH & Co. KG.
+If you find it useful anyway, feel free to use it.
 
 ## Installation
 
@@ -11,6 +10,47 @@ You can also checkout this repo and run `gem build fulmar-plugin-core4.gemspec` 
 `gem install fulmar-plugin-core4*.gem`
 
 ## Usage
+
+### fulmar test:config
+
+This plugin adds an additional test to the `test:config` task. It checks
+your host file (e.g. /etc/hosts) for duplicate entries. These may occur
+when a vagrant machine is not uninstalled via `vagrant destroy`.
+
+### fulmar vagrant:update
+
+The plugin provides a task to update local development environment from
+cached data on the internal storage server. 
+
+You can configure the asset and database urls for the internal cache
+server within the plugin configuration. It should look something like this:
+
+```yaml
+plugin:
+  core4:
+    sync:
+      to: 'vagrant:neos'
+      database_url: https://storage.core4.de/xxx/yyy.sql.gz
+      assets_url: https://storage.core4.de/xxx/zzz.tar.gz
+      assets_path: /srv/neos/Data/Persistent
+```
+
+`assets_url` and `assets_path` may be arrays of the same size. Fulmar
+will then iterate over all file and extract them to the given directories:
+
+```yaml
+plugin:
+  core4:
+    sync:
+      to: 'vagrant:neos'
+      database_url: https://storage.core4.de/xxx/yyy.sql.gz
+      assets_url:
+        - https://storage.core4.de/xxx/zzz1.tar.gz
+        - https://storage.core4.de/xxx/zzz2.tar.gz
+      assets_path:
+        - /srv/neos/Data/Persistent
+        - /srv/neos/Data/Something
+```
 
 
 ## Contributing
