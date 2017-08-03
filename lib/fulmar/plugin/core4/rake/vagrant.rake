@@ -50,7 +50,7 @@ namespace :initialize do
   end
 end
 
-unless config.plugins[:core4][:sync].nil?
+if config.plugins[:core4] && config.plugins[:core4][:sync]
   namespace :setup do
     namespace :vagrant do
       desc 'Update vagrant database and assets from internal cache server'
