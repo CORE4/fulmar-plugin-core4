@@ -6,14 +6,14 @@ namespace :initialize do
     auth_json = "#{ENV['HOME']}/.composer/auth.json"
     if File.exist?(auth_json)
       info ' Copying local composer auth file into vagrant machine...'
-      local_shell.run "cat #{auth_json} | vagrant ssh -c \"mkdir -p ~/.composer; cat > ~/.composer/auth.json\""
+      local_shell.run "cat #{auth_json} | vagrant ssh -c \"mkdir -p ~/.composer; cat > ~/.composer/auth.json\"", escape_bundler: true
     else
       info " #{auth_json} not found. Skipping..."
     end
 
     # Add known hosts
     info ' Copying known_hosts for this project...'
-    local_shell.run "cat .known_hosts | vagrant ssh -c \"cat > ~/.ssh/known_hosts\"", in: config.base_path
+    local_shell.run "cat .known_hosts | vagrant ssh -c \"cat > ~/.ssh/known_hosts\"", in: config.base_path, escape_bundler: true
 
     # Add ssh config
     info ' Adding ssh configuration for this project...'
