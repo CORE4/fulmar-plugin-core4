@@ -1,5 +1,22 @@
 namespace :initialize do
   # common tasks for all projects
+
+  namespace :vagrant do
+    task :internal do
+      # Ensure, we don't fuck up the host
+      if `whoami`.chomp != 'vagrant'
+        raise 'You are not inside a vagrant machine. This task needs to be run as user "vagrant"'
+      end
+
+      # Add ssh config
+      ssh_config.add_hosts
+
+      # Add known hosts
+      FileUtils.mkdir_p '/home/vagrant/.ssh'
+      FileUtils.cp "#{config.base_path}/.known_hosts", '/home/vagrant/.ssh/'
+    end
+  end
+
   task :vagrant do
     info 'Running common vagrant tasks...'
     # Add composer auth
@@ -31,7 +48,7 @@ namespace :initialize do
     neos_config = '/etc/nginx/sites-available/neos.conf'
     remote_shell.strict = false
     if remote_shell.run "test -f #{neos_config}"
-      username = `git config --global user.name`.strip.gsub(' ', '')
+      username = `git config --global user.name`.strip.delete(' ')
       flow_context = "Development/Vagrant/#{username}"
       info " Setting flow context to #{flow_context}..."
       remote_shell.run [
@@ -53,10 +70,10 @@ end
 if config.plugins[:core4] && config.plugins[:core4][:sync]
   namespace :setup do
     namespace :vagrant do
-      desc 'Update vagrant database and assets from internal cache server'
+      desc 'Update vagrant database and assets from internal cache server via http'
       task :download do
         plugin_config = config.plugins[:core4][:sync]
-        config.set *config.plugins[:core4][:sync][:to].split(':').map(&:to_sym)
+        config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
 
         info 'Loading database...'
         remote_shell.run "curl -s #{plugin_config[:database_url]} > /tmp/database.sql.gz"
@@ -65,7 +82,32 @@ if config.plugins[:core4] && config.plugins[:core4][:sync]
         info 'Loading assets...'
         urls = [*plugin_config[:assets_url]]
         paths = [*plugin_config[:assets_path]]
-        fail 'The number of assets urls must match the number of assets paths' unless urls.size == paths.size
+        raise 'The number of assets urls must match the number of assets paths' unless urls.size == paths.size
+        urls.each_index do |i|
+          remote_shell.run [
+            "mkdir -p #{paths[i]}",
+            "curl -s #{urls[i]} | tar -xzf - -C #{paths[i]}"
+          ]
+        end
+      end
+
+      desc 'Update vagrant database and assets from internal cache server via ssh'
+      task :sync do
+        # Ensure, we don't fuck up the host
+        if `whoami`.chomp != 'vagrant'
+          raise 'You are not inside a vagrant machine. This task needs to be run as user "vagrant"'
+        end
+
+        plugin_config = config.plugins[:core4][:sync]
+        config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
+
+        info 'Loading database...'
+        local_shell.run "ssh storage.core4.de cat \"#{plugin_config[:database_path]}\" | sudo mysql -u root -D #{config[:mariadb][:database]}"
+
+        info 'Loading assets...'
+        urls = [*plugin_config[:assets_url]]
+        paths = [*plugin_config[:assets_path]]
+        raise 'The number of assets urls must match the number of assets paths' unless urls.size == paths.size
         urls.each_index do |i|
           remote_shell.run [
             "mkdir -p #{paths[i]}",
