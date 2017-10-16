@@ -13,7 +13,7 @@ namespace :initialize do
 
       # Add known hosts
       FileUtils.mkdir_p '/home/vagrant/.ssh'
-      FileUtils.cp "#{config.base_path}/.known_hosts", '/home/vagrant/.ssh/'
+      FileUtils.cp "#{config.base_path}/.known_hosts", '/home/vagrant/.ssh/known_hosts'
     end
   end
 
