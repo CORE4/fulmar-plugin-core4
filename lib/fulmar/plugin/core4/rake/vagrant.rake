@@ -46,9 +46,9 @@ namespace :initialize do
 
     # Replace FLOW_CONTEXT with a personal one
     neos_config = '/etc/nginx/sites-available/neos.conf'
+    username = `git config --global user.name`.strip.delete(' ')
     remote_shell.strict = false
-    if remote_shell.run "test -f #{neos_config}"
-      username = `git config --global user.name`.strip.delete(' ')
+    if remote_shell.run("test -f #{neos_config}") && !username.empty?
       flow_context = "Development/Vagrant/#{username}"
       info " Setting flow context to #{flow_context}..."
       remote_shell.run [
