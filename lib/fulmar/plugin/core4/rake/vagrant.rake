@@ -52,11 +52,11 @@ namespace :initialize do
       flow_context = "Development/Vagrant/#{username}"
       info " Setting flow context to #{flow_context}..."
       remote_shell.run [
-        "sudo sed -i.bak \"s+Development/Vagrant;+#{flow_context};+g\" neos.conf",
+        "sudo sed -i.bak \"s+Development/Vagrant.*;+#{flow_context};+g\" neos.conf",
         'sudo rm neos.conf.bak'
       ], in: '/etc/nginx/sites-available'
       remote_shell.run [
-        "sed -i.bak s+\\\"Development/Vagrant\"+\"#{flow_context}\\\"+g local.fish",
+        "sed -i.bak 's+Development/Vagrant[^\"]*+#{flow_context}+g' local.fish",
         'rm local.fish.bak'
       ], in: '/home/vagrant/.config/fish'
     else
