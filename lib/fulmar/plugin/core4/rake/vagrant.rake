@@ -76,18 +76,18 @@ if config.plugins[:core4] && config.plugins[:core4][:sync]
         config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
 
         info 'Loading database...'
-        remote_shell.run "curl -s #{plugin_config[:database_url]} > /tmp/database.sql.gz"
-        mariadb.load_dump('/tmp/database.sql.gz')
+        remote_shell.run "ssh storage \"cat #{plugin_config[:dump_path]}\" | " \
+                         "gzip -d | " \
+                         "sudo mysql -u root -D #{config[:mariadb][:database]}"
 
         info 'Loading assets...'
-        urls = [*plugin_config[:assets_url]]
+        remote_paths = [*plugin_config[:remote_assets_path]]
         paths = [*plugin_config[:assets_path]]
-        raise 'The number of assets urls must match the number of assets paths' unless urls.size == paths.size
-        urls.each_index do |i|
-          remote_shell.run [
-            "mkdir -p #{paths[i]}",
-            "curl -s #{urls[i]} | tar -xzf - -C #{paths[i]}"
-          ]
+        unless remote_paths.size == paths.size
+          raise 'The number of remote assets paths must match the number of (local) assets paths'
+        end
+        remote_paths.each_index do |i|
+          remote_shell.run "rsync -a --delete storage:#{remote_paths[i]}/ #{paths[i]}/"
         end
       end
 
