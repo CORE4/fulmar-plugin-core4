@@ -87,7 +87,10 @@ if config.plugins[:core4] && config.plugins[:core4][:sync]
           raise 'The number of remote assets paths must match the number of (local) assets paths'
         end
         remote_paths.each_index do |i|
-          remote_shell.run "rsync -a --delete storage:#{remote_paths[i]}/ #{paths[i]}/"
+          remote_shell.run [
+            "mkdir -p #{paths[i]}",
+            "rsync -a --delete storage:#{remote_paths[i]}/ #{paths[i]}/"
+          ]
         end
       end
 
