@@ -52,6 +52,32 @@ plugin:
         - /srv/neos/Data/Something
 ```
 
+### Vagrant sharing
+
+A fulmar task allows sharing the vagrant machine with the local network. Port 443 ist forwarded to
+a proxy which will make the content accessible.
+
+The Task `share:vagrant` open the tunnel but needs a loaded environment. You can add the
+environment/target configuration in the empty task `share:prepare`.
+
+```ruby
+namespace :share do
+  task prepare: 'environment:vagrant:neos' do
+    # prepare your app, add the new domain
+    # "vagrant#{vagrant_sharing_port}.core4dev.de"
+  end
+end
+```
+
+If you configure a Neos environment, you can use the prebuilt task `share:prepare` like this:
+
+```ruby
+namespace :share do
+  task prepare: 'environment:vagrant:neos share:prepare:neos'
+end
+```
+
+You need to configure the option `site_node_name` .
 
 ## Contributing
 
