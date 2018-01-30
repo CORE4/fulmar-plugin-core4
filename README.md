@@ -45,8 +45,8 @@ plugin:
       to: 'vagrant:neos'
       dump_path: /srv/storage/xxx/yyy.sql.gz
       remote_assets_path:
-        - /srv/storage/xxx/zzz1.tar.gz
-        - /srv/storage/xxx/zzz2.tar.gz
+        - /srv/storage/xxx/Resources
+        - /srv/storage/xxx/Something
       assets_path:
         - /srv/neos/Data/Persistent/Resources
         - /srv/neos/Data/Something
