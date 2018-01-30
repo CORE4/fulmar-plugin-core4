@@ -70,7 +70,7 @@ end
 if config.plugins[:core4] && config.plugins[:core4][:sync]
   namespace :setup do
     namespace :vagrant do
-      desc 'Update vagrant database and assets from internal cache server via http'
+      desc 'Update vagrant database and assets from internal cache server via ssh'
       task :download do
         plugin_config = config.plugins[:core4][:sync]
         config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
