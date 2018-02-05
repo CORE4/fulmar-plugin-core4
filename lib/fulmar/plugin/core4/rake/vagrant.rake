@@ -1,10 +1,12 @@
+@whoami = `whoami`.chomp
+
 namespace :initialize do
   # common tasks for all projects
 
   namespace :vagrant do
     task :internal do
       # Ensure, we don't fuck up the host
-      if `whoami`.chomp != 'vagrant'
+      if @whoami != 'vagrant'
         raise 'You are not inside a vagrant machine. This task needs to be run as user "vagrant"'
       end
 
@@ -67,10 +69,10 @@ namespace :initialize do
   end
 end
 
-if config.plugins[:core4] && config.plugins[:core4][:sync]
+if config.plugins.dig(:core4, :sync, :to)
   namespace :setup do
     namespace :vagrant do
-      desc 'Update vagrant database and assets from internal cache server via ssh'
+      desc 'Update vagrant database and assets from internal cache server via ssh' unless @whoami == 'vagrant'
       task :download do
         plugin_config = config.plugins[:core4][:sync]
         config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
@@ -94,10 +96,10 @@ if config.plugins[:core4] && config.plugins[:core4][:sync]
         end
       end
 
-      desc 'Update vagrant database and assets from internal cache server via ssh'
+      desc 'Update vagrant database and assets from internal cache server via ssh' if @whoami == 'vagrant'
       task :sync do
         # Ensure, we don't fuck up the host
-        if `whoami`.chomp != 'vagrant'
+        if @whoami != 'vagrant'
           raise 'You are not inside a vagrant machine. This task needs to be run as user "vagrant"'
         end
 
