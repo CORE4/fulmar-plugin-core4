@@ -5,6 +5,7 @@ namespace :cleanup do
     FileUtils.rm_f 'package.box'
 
     box = config.project.name
+    raise "No project name is set, cannot clean vagrant box" if box.nil? || box.empty?
 
     # Manually stop running vms
     local_shell.run 'vboxmanage list runningvms'
