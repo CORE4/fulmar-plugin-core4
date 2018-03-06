@@ -78,10 +78,13 @@ if config.plugins.dig(:core4, :sync, :to)
         config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
 
         info 'Loading database...'
-        remote_shell.run "ssh storage \"cat #{plugin_config[:dump_path]}\" | " \
-                         "gzip -d | " \
-                         "sudo mysql -u root -D #{config[:mariadb][:database]}"
-
+        remote_shell.run [
+          "sudo mysql -u root -e 'DROP DATABASE `#{config[:mariadb][:database]}`'",
+          "sudo mysql -u root -e 'CREATE DATABASE `#{config[:mariadb][:database]}`'",
+          "ssh storage \"cat #{plugin_config[:dump_path]}\" | " \
+          "gzip -d | " \
+          "sudo mysql -u root -D #{config[:mariadb][:database]}"
+        ]
         info 'Loading assets...'
         remote_paths = [*plugin_config[:remote_assets_path]]
         paths = [*plugin_config[:assets_path]]
@@ -107,7 +110,13 @@ if config.plugins.dig(:core4, :sync, :to)
         config.set(*config.plugins[:core4][:sync][:to].split(':').map(&:to_sym))
 
         info 'Loading database...'
-        local_shell.run "ssh storage.core4.de cat \"#{plugin_config[:database_path]}\" | sudo mysql -u root -D #{config[:mariadb][:database]}"
+        local_shell.run [
+          "sudo mysql -u root -e 'DROP DATABASE `#{config[:mariadb][:database]}`'",
+          "sudo mysql -u root -e 'CREATE DATABASE `#{config[:mariadb][:database]}`'",
+          "ssh storage \"cat #{plugin_config[:dump_path]}\" | " \
+          "gzip -d | " \
+          "sudo mysql -u root -D #{config[:mariadb][:database]}"
+        ]
 
         info 'Loading assets...'
         urls = [*plugin_config[:assets_url]]
